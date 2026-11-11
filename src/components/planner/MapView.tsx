@@ -155,6 +155,8 @@ const MapView: React.FC<MapViewProps> = ({
                 weight: 2,
                 dashArray: '6 6',
               }}
+              // The radius is visual only; it must not intercept clicks on destination markers.
+              interactive={false}
             />
             <Marker position={userCoords} icon={userIcon}>
               <Popup>
