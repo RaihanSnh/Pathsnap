@@ -12,6 +12,10 @@ interface LocationControlsProps {
   onRadiusMetersChange: (meters: number) => void;
   onRadiusUnitChange: (unit: RadiusUnit) => void;
   onPickingOnMapChange: (picking: boolean) => void;
+  minPrice: number | undefined;
+  maxPrice: number | undefined;
+  onMinPriceChange: (price: number | undefined) => void;
+  onMaxPriceChange: (price: number | undefined) => void;
 }
 
 const LocationControls: React.FC<LocationControlsProps> = ({
@@ -23,6 +27,10 @@ const LocationControls: React.FC<LocationControlsProps> = ({
   onRadiusMetersChange,
   onRadiusUnitChange,
   onPickingOnMapChange,
+  minPrice,
+  maxPrice,
+  onMinPriceChange,
+  onMaxPriceChange,
 }) => {
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState('');
@@ -176,6 +184,21 @@ const LocationControls: React.FC<LocationControlsProps> = ({
         <span className="text-xs text-gray-500">
           {formatRadiusLabel(radiusMeters, radiusUnit)} · places inside are prioritized
         </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-end gap-3 border-t border-gray-100 pt-3">
+        <span className="mr-1 text-xs font-medium uppercase tracking-wide text-gray-500">Harga destinasi</span>
+        <label className="text-xs text-gray-600">Min
+          <select value={minPrice ?? ''} onChange={event => onMinPriceChange(event.target.value ? Number(event.target.value) : undefined)} className="ml-2 rounded border border-gray-200 px-2 py-1.5 text-sm text-gray-800">
+            <option value="">Tanpa batas</option><option value="1">1 · Ekonomis</option><option value="2">2 · Menengah</option><option value="3">3 · Premium</option>
+          </select>
+        </label>
+        <label className="text-xs text-gray-600">Max
+          <select value={maxPrice ?? ''} onChange={event => onMaxPriceChange(event.target.value ? Number(event.target.value) : undefined)} className="ml-2 rounded border border-gray-200 px-2 py-1.5 text-sm text-gray-800">
+            <option value="">Tanpa batas</option><option value="1">1 · Ekonomis</option><option value="2">2 · Menengah</option><option value="3">3 · Premium</option>
+          </select>
+        </label>
+        <span className="text-xs text-gray-500">Skala kategori harga 1–3</span>
       </div>
 
       <p className="mt-2 text-xs text-gray-600">

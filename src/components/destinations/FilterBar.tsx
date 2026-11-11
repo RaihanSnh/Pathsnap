@@ -46,7 +46,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
   };
   
   // Determine if any filter is active
-  const hasActiveFilters = searchQuery || filters.region || filters.climate || (filters.priceRange && filters.priceRange.length > 0);
+  const hasActiveFilters = searchQuery || filters.region || filters.climate || (filters.priceRange && filters.priceRange.length > 0) || filters.minPrice !== undefined || filters.maxPrice !== undefined;
   
   return (
     <div className="bg-white rounded-lg shadow-md mb-8">
@@ -71,7 +71,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
       
       {showFilters && (
         <div className="p-4 border-b">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-medium mb-2">Region</h3>
               <div className="flex flex-wrap gap-2">
@@ -111,20 +111,15 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
             </div>
             
             <div>
-              <h3 className="font-medium mb-2">Price Range</h3>
-              <div className="flex flex-wrap gap-2">
-                {[1, 2, 3].map(level => (
-                  <button
-                    key={level}
-                    onClick={() => handlePriceRangeChange(level)}
-                    className={`text-sm px-4 py-1 rounded-full ${
-                      filters.priceRange?.includes(level)
-                        ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {Array(level).fill(0).map((_, i) => '$').join('')}
-                  </button>
+              <h3 className="font-medium mb-2">Rentang harga (USD)</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {(['minPrice', 'maxPrice'] as const).map((key) => (
+                  <label key={key} className="text-sm text-gray-600">
+                    {key === 'minPrice' ? 'Harga minimum' : 'Harga maksimum'}
+                    <input type="number" min="0" value={filters[key] ?? ''} placeholder="Tidak dibatasi"
+                      onChange={e => handleFilterChange(key, e.target.value === '' ? undefined : Number(e.target.value))}
+                      className="mt-1 w-full rounded-lg border px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  </label>
                 ))}
               </div>
             </div>

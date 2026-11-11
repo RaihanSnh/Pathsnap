@@ -72,6 +72,8 @@ export type FilterOptions = {
   climate?: string;
   priceRange?: number[];
   searchQuery?: string;
+  minPrice?: number;
+  maxPrice?: number;
 };
 
 /** Resolved traveler anchor used for radius prioritization on the map and in AI planning. */

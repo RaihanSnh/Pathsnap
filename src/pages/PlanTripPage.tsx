@@ -20,6 +20,12 @@ const PlanTripPage: React.FC = () => {
   const [radiusMeters, setRadiusMeters] = useState(2000);
   const [radiusUnit, setRadiusUnit] = useState<RadiusUnit>('km');
   const [isPickingOnMap, setIsPickingOnMap] = useState(false);
+  const [minPrice, setMinPrice] = useState<number>();
+  const [maxPrice, setMaxPrice] = useState<number>();
+  const visibleDestinations = destinations.filter(destination =>
+    (minPrice === undefined || destination.priceRange >= minPrice) &&
+    (maxPrice === undefined || destination.priceRange <= maxPrice),
+  );
 
   const handleMapPickLocation = (coords: [number, number]) => {
     setUserLocation({
@@ -183,10 +189,14 @@ const PlanTripPage: React.FC = () => {
             onRadiusMetersChange={setRadiusMeters}
             onRadiusUnitChange={setRadiusUnit}
             onPickingOnMapChange={setIsPickingOnMap}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMinPriceChange={setMinPrice}
+            onMaxPriceChange={setMaxPrice}
           />
           <div className="h-[600px]">
             <MapView
-              destinations={destinations}
+              destinations={visibleDestinations}
               selectedDestinations={selectedDestinations}
               onDestinationSelect={handleAddDestination}
               userLocation={userLocation}

@@ -119,6 +119,8 @@ export const filterDestinations = (destinations: Destination[], filters: FilterO
     }
     
     // Filter by price range
+    if (filters.minPrice !== undefined && dest.priceRange < filters.minPrice) return false;
+    if (filters.maxPrice !== undefined && dest.priceRange > filters.maxPrice) return false;
     if (filters.priceRange && filters.priceRange.length > 0) {
       if (!filters.priceRange.includes(dest.priceRange)) {
         return false;
