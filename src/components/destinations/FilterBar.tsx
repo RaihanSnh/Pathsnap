@@ -2,18 +2,49 @@ import React, { useState } from 'react';
 import { FilterOptions } from '../../types';
 import { Search, Filter, X } from 'lucide-react';
 import Button from '../ui/Button';
+import { Destination } from '../../types';
 
 interface FilterBarProps {
   onFilterChange: (filters: FilterOptions) => void;
+  destinations: Destination[];
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
+const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+const editDistance = (a: string, b: string) => {
+  const row = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const above = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = above;
+    }
+  }
+  return row[b.length];
+};
+
+const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, destinations }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({});
   
-  const regions = ['Asia', 'Europe', 'North America', 'South America', 'Africa', 'Oceania'];
-  const climates = ['Tropical', 'Temperate', 'Seasonal', 'Desert', 'Mediterranean', 'Polar'];
+  const normalQuery = normalize(searchQuery);
+  const hasSearchMatch = destinations.some(destination =>
+    `${destination.name} ${destination.country} ${destination.description}`.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+  const suggestion = normalQuery.length >= 4 && !hasSearchMatch
+    ? destinations.map(destination => {
+        const name = normalize(destination.name);
+        const queryWords = normalQuery.split(/\s+/);
+        const nameWords = name.split(/\s+/);
+        const wordScore = queryWords.map(word => Math.max(...nameWords.map(candidate => 1 - editDistance(word, candidate) / Math.max(word.length, candidate.length))));
+        const score = wordScore.reduce((sum, value) => sum + value, 0) / wordScore.length;
+        return { destination, score };
+      }).filter(item => item.score >= 0.78)
+        .sort((a, b) => b.score - a.score)[0]?.destination
+    : undefined;
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -46,7 +77,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
   };
   
   // Determine if any filter is active
-  const hasActiveFilters = searchQuery || filters.region || filters.climate || (filters.priceRange && filters.priceRange.length > 0) || filters.minPrice !== undefined || filters.maxPrice !== undefined;
+  const hasActiveFilters = searchQuery || (filters.priceRange && filters.priceRange.length > 0) || filters.minPrice !== undefined || filters.maxPrice !== undefined;
   
   return (
     <div className="bg-white rounded-lg shadow-md mb-8">
@@ -67,49 +98,19 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
             <Filter size={18} className={`text-gray-500 ${showFilters ? 'text-teal-600' : ''}`} />
           </button>
         </div>
+        {suggestion && (
+          <p className="mt-2 text-sm text-gray-600">
+            Mungkin yang Anda maksud adalah{' '}
+            <button type="button" onClick={() => handleSearchChange({ target: { value: suggestion.name } } as React.ChangeEvent<HTMLInputElement>)} className="font-medium text-teal-700 underline decoration-teal-300 underline-offset-2 hover:text-teal-900">
+              {suggestion.name}
+            </button>
+          </p>
+        )}
       </div>
       
       {showFilters && (
         <div className="p-4 border-b">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium mb-2">Region</h3>
-              <div className="flex flex-wrap gap-2">
-                {regions.map(region => (
-                  <button
-                    key={region}
-                    onClick={() => handleFilterChange('region', filters.region === region ? undefined : region)}
-                    className={`text-sm px-3 py-1 rounded-full ${
-                      filters.region === region
-                        ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {region}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-medium mb-2">Climate</h3>
-              <div className="flex flex-wrap gap-2">
-                {climates.map(climate => (
-                  <button
-                    key={climate}
-                    onClick={() => handleFilterChange('climate', filters.climate === climate ? undefined : climate)}
-                    className={`text-sm px-3 py-1 rounded-full ${
-                      filters.climate === climate
-                        ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {climate}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <h3 className="font-medium mb-2">Rentang harga (USD)</h3>
               <div className="grid grid-cols-2 gap-3">

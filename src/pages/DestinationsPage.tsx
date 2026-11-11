@@ -27,7 +27,7 @@ const DestinationsPage: React.FC = () => {
         </p>
       </div>
       
-      <FilterBar onFilterChange={handleFilterChange} />
+      <FilterBar onFilterChange={handleFilterChange} destinations={destinations} />
       
       {filteredDestinations.length === 0 ? (
         <div className="text-center py-12">

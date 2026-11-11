@@ -31,14 +31,14 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
   totalDuration
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md h-full overflow-hidden flex flex-col">
-      <div className="p-4 bg-teal-600 text-white">
-        <h3 className="text-lg font-semibold flex items-center">
-          <MapPin className="mr-2" />
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="bg-teal-700 px-4 py-3 text-white">
+        <h3 className="flex items-center text-base font-semibold">
+          <MapPin size={18} className="mr-2" />
           Your Route
         </h3>
         {selectedDestinations.length > 0 && (
-          <div className="mt-2 text-sm flex items-center space-x-4">
+          <div className="mt-2 flex items-center gap-4 text-sm text-teal-50">
             <div className="flex items-center">
               <Calendar size={14} className="mr-1" />
               <span>{totalDuration} {totalDuration === 1 ? 'day' : 'days'}</span>
@@ -51,11 +51,11 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
         )}
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 space-y-3 overflow-y-auto bg-gray-50/70 p-3">
         {selectedDestinations.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <MapPin size={48} className="mx-auto mb-4 text-gray-300" />
-            <p>Click on the map to start creating your route</p>
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-5 py-10 text-center text-sm text-gray-500">
+            <MapPin size={36} className="mx-auto mb-3 text-gray-300" />
+            <p>Click a destination on the map to add it to your route.</p>
           </div>
         ) : (
           <AnimatePresence>
@@ -85,27 +85,31 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mb-6 border rounded-lg overflow-hidden shadow-sm"
+                  className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
                 >
-                  <div className="flex items-center justify-between p-3 bg-gray-50 border-b">
-                    <div className="flex items-center">
-                      <div className="bg-teal-100 text-teal-800 rounded-full w-6 h-6 flex items-center justify-center mr-2">
+                  <div className="flex items-center justify-between border-b border-gray-100 bg-white px-3 py-3">
+                    <div className="flex min-w-0 items-center">
+                      <div className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-800">
                         {index + 1}
                       </div>
-                      <h4 className="font-medium">{destination.name}</h4>
+                      <div className="min-w-0">
+                        <h4 className="truncate text-sm font-semibold text-gray-900">{destination.name}</h4>
+                        <p className="text-xs text-gray-500">{destination.country}</p>
+                      </div>
                     </div>
                     <button
                       onClick={() => onRemoveDestination(index)}
-                      className="text-gray-500 hover:text-red-500"
+                      aria-label={`Remove ${destination.name} from route`}
+                      className="ml-2 rounded-md p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 size={16} />
                     </button>
                   </div>
                   
-                  <div className="p-3">
+                  <div className="space-y-4 p-3">
                     <div className="mb-3">
                       <label className="block text-sm text-gray-600 mb-1">Stay Duration</label>
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => onUpdateDuration(index, Math.max(1, routePoint.stayDuration - 1))}
                           className="border rounded-l px-2 py-1 bg-gray-100 hover:bg-gray-200"
@@ -139,13 +143,13 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
                             <div
                               key={accommodation.id}
                               onClick={() => onSelectAccommodation(index, accommodation.id)}
-                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${
+                              className={`flex items-center gap-2.5 rounded-lg p-2 transition-colors ${
                                 routePoint.selectedAccommodationId === accommodation.id
                                   ? 'bg-teal-50 border border-teal-200'
                                   : 'hover:bg-gray-50 border border-gray-100'
                               }`}
                             >
-                              <div className="w-10 h-10 flex-shrink-0 mr-3">
+                              <div className="h-11 w-11 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
                                 <img 
                                   src={accommodation.image} 
                                   alt={accommodation.name}
@@ -192,13 +196,13 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
                             <div
                               key={attraction.id}
                               onClick={() => onToggleAttraction(index, attraction.id)}
-                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${
+                              className={`flex items-center gap-2.5 rounded-lg p-2 transition-colors ${
                                 routePoint.selectedAttractions.includes(attraction.id)
                                   ? 'bg-teal-50 border border-teal-200'
                                   : 'hover:bg-gray-50 border border-gray-100'
                               }`}
                             >
-                              <div className="w-10 h-10 flex-shrink-0 mr-3">
+                              <div className="h-11 w-11 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
                                 <img 
                                   src={attraction.image} 
                                   alt={attraction.name}
@@ -243,7 +247,7 @@ const RouteSidebar: React.FC<RouteSidebarProps> = ({
         )}
       </div>
       
-      <div className="p-4 border-t">
+      <div className="border-t border-gray-100 bg-white p-3">
         <Button
           variant="primary"
           fullWidth
